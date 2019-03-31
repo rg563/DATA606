@@ -1,0 +1,207 @@
+---
+title: DATA 606 Data Project Proposal
+author: Ryan Gordon
+date: March 31, 2019
+output:
+  html_document:
+    code_folding: hide
+    highlight: pygments
+    theme: cerulean
+    toc: true
+    toc_float:
+      collapsed: false
+---
+
+### Data Preparation
+
+For this project, I will use three different data frames to address my research questions. Below is the R-code used to collect all the data.
+
+```{r setup, echo=TRUE, warning=FALSE, message=FALSE, comment=NA, results='hide'}
+library(stringr)
+salary.by.college.type.df <- read.csv(url("https://raw.githubusercontent.com/rg563/DATA606/master/Project/salaries_by_type.csv"),header=TRUE)
+for (i in 3:ncol(salary.by.college.type.df)) {
+  salary.by.college.type.df[,i] <- as.character(gsub("\\$","",salary.by.college.type.df[,i]))
+  salary.by.college.type.df[,i] <- as.character(gsub("\\,","",salary.by.college.type.df[,i]))
+  salary.by.college.type.df[,i] <- as.character(gsub("\\.00","",salary.by.college.type.df[,i]))
+  salary.by.college.type.df[,i] <- as.numeric(salary.by.college.type.df[,i])
+}
+salary.by.region.df <- read.csv(url("https://raw.githubusercontent.com/rg563/DATA606/master/Project/salary_by_college_location.csv"),header=TRUE)
+for (i in 3:ncol(salary.by.region.df)) {
+  salary.by.region.df[,i] <- as.character(gsub("\\$","",salary.by.region.df[,i]))
+  salary.by.region.df[,i] <- as.character(gsub("\\,","",salary.by.region.df[,i]))
+  salary.by.region.df[,i] <- as.character(gsub("\\.00","",salary.by.region.df[,i]))
+  salary.by.region.df[,i] <- as.numeric(salary.by.region.df[,i])
+}
+salary.by.major.df <- read.csv(url("https://raw.githubusercontent.com/rg563/DATA606/master/Project/salary_by_major.csv"),header=TRUE)
+for (i in 2:ncol(salary.by.major.df)) {
+  salary.by.major.df[,i] <- as.character(gsub("\\$","",salary.by.major.df[,i]))
+  salary.by.major.df[,i] <- as.character(gsub("\\,","",salary.by.major.df[,i]))
+  salary.by.major.df[,i] <- as.character(gsub("\\.00","",salary.by.major.df[,i]))
+  salary.by.major.df[,i] <- as.numeric(salary.by.major.df[,i])
+}
+```
+
+The initial data cleanup consisted of making sure the salary columns were displayed as numeric. I removed the dollar sign, comma, and cents (".00"), and then converted the columns to numeric.
+
+### Research question
+
+My major, overlying research is question is, "Which college factors affect starting and long-term salaries?" More specifically, I will look at the following research questions:
+
+(1) Does type of college (i.e. Engineering school) impact post-graduation salary?
+(2) Does college location affect post-graduation salary?
+(3) Is salary dependent on college major?
+
+### Cases {.tabset .tabset-fade}
+
+Each of the three data sets have a different number of cases and type of cases. They are broken down in the following tabset.
+
+#### Salary by College Type
+
+Each case represents a different college/university. There are 269 cases in this dataset. For each college, they also list which type of school it is, along with salary averages.
+
+```{r cases_type, eval=TRUE, comment=NA}
+nrow(salary.by.college.type.df)
+```
+
+#### Salary by College Location
+
+Each case represents a different college/university. There are 320 cases in this dataset. For each college, they also list state in which it is located, along with salary averages.
+
+```{r cases_location, eval=TRUE, comment=NA}
+nrow(salary.by.region.df)
+```
+
+#### Salary by College Major
+
+Each case represents a different major. There are 50 cases in this dataset. For each major, they also list salary averages.
+
+```{r cases_major, eval=TRUE, comment=NA}
+nrow(salary.by.major.df)
+```
+
+### Data collection 
+
+These datasets were collected from Kaggle, which was obtained from the Wall Street Journal based on data from Payscale, Inc. The data was in csv file format, so I took the csv's and placed them in my Github. I then retrieved each of the csv files using the read.csv() function, and the link to the raw Github pages for this. I could have directly got the information from Kaggle's website using the same method, but I wanted the data in my Github so it was all in one location.
+
+### Type of study 
+
+All of these studies are observational.
+
+### Data Source 
+
+As stated in the "Data collection" section, the datasets were collected from Kaggle, which was obtained from the Wall Street Journal based on data from Payscale, Inc. The links to the datasets I used are:
+
+(a) https://www.kaggle.com/wsj/college-salaries/version/1#salaries-by-college-type.csv
+
+(b) https://www.kaggle.com/wsj/college-salaries/version/1#salaries-by-region.csv
+
+(c) https://www.kaggle.com/wsj/college-salaries/version/1#degrees-that-pay-back.csv
+
+### Dependent Variable
+
+The dependent variable is the salary income. This is quantitative.
+
+### Independent Variable
+
+Each of the data sets has a different independent variable. The independent variables in this study are:
+
+(1) College Type
+
+(2) College Location
+
+(3) Type of Major
+
+Another independent variable would be length of career. For example, the starting salaries should differ from the median salaries.
+
+### Relevant summary statistics {.tabset .tabset-fade}
+
+Each tab will provide some of the relevant summary statistics for each dataset.
+
+#### Salary by College Type
+
+The number of schools per type is shown below. This study has a total of five different types of schools.
+
+```{r summary_school_type, eval=TRUE, comment=NA}
+summary(salary.by.college.type.df$School.Type)
+```
+
+Next, I looked at the summary statistics for median starting salary and mid career salary across all school types. Initially, we can see a clear difference in the average salaries for people who are later in their career compared to just starting out which is expected.
+
+```{r summary_school_type_salary, eval=TRUE, comment=NA}
+cat("Median Starting Salary:")
+summary(salary.by.college.type.df$Starting.Median.Salary)
+cat("Median Mid Career Salary:")
+summary(salary.by.college.type.df$Mid.Career.Median.Salary)
+```
+
+Finally, I wanted to create side-by-side box plot to compare distributions by college type. The first graph shows the starting salary difference as a function of school type, while the second compares the Mid Career salary. For both plots, we can see that students from Ivy League schools tend to get paid better.
+
+```{r boxplot_type_starting, eval=TRUE, comment=NA}
+boxplot(salary.by.college.type.df$Starting.Median.Salary ~ salary.by.college.type.df$School.Type,xlab='School Type',ylab='Salary (USD)',main='Starting Salary')
+```
+
+```{r boxplot_type_mid, eval=TRUE, comment=NA}
+boxplot(salary.by.college.type.df$Mid.Career.Median.Salary ~ salary.by.college.type.df$School.Type,xlab='School Type',ylab='Salary (USD)',main='Mid Career Salary')
+```
+
+In my project, I will look at some significance tests to see if their is any difference between the means.
+
+#### Salary by College Location
+
+The number of schools per region is shown below. This study has a total of five different regions.
+
+```{r summary_school_location, eval=TRUE, comment=NA}
+summary(salary.by.region.df$Region)
+```
+
+Next, I looked at the summary statistics for median starting salary and mid career salary across all regions. Initially, we can see a clear difference in the average salaries for people who are later in their career compared to just starting out which is expected.
+
+```{r summary_location_salary, eval=TRUE, comment=NA}
+cat("Median Starting Salary:")
+summary(salary.by.region.df$Starting.Median.Salary)
+cat("Median Mid Career Salary:")
+summary(salary.by.region.df$Mid.Career.Median.Salary)
+```
+
+Finally, I wanted to create side-by-side box plot to compare distributions by region. The first graph shows the starting salary difference as a function of region, while the second compares the Mid Career salary. For both plots, we can see that students from schools in California and the Northeast tend to get paid better. However, the distance between the regions is not as large as for the salary by college type.
+
+```{r boxplot_location_starting, eval=TRUE, comment=NA}
+boxplot(salary.by.region.df$Starting.Median.Salary ~ salary.by.region.df$Region,xlab='School Type',ylab='Salary (USD)',main='Starting Salary')
+```
+
+```{r boxplot_location_mid, eval=TRUE, comment=NA}
+boxplot(salary.by.region.df$Starting.Median.Salary ~ salary.by.region.df$Region,xlab='School Type',ylab='Salary (USD)',main='Mid Career Salary')
+```
+
+In my project, I will look at some significance tests to see if their is any difference between the means.
+
+#### Salary by College Major
+
+A list of all the majors in the study are shown below. There is a total of 50 majors for this study.
+
+```{r summary_school_major, eval=TRUE, comment=NA}
+salary.by.major.df$Undergraduate.Major
+```
+
+Next, I looked at the summary statistics for median starting salary and mid career salary across all majors. Initially, we can see a clear difference in the average salaries for people who are later in their career compared to just starting out which is expected.
+
+```{r summary_major_salary, eval=TRUE, comment=NA}
+cat("Median Starting Salary:")
+summary(salary.by.major.df$Starting.Median.Salary)
+cat("Median Mid Career Salary:")
+summary(salary.by.major.df$Mid.Career.Median.Salary)
+```
+
+Finally, I wanted to create a bar plot to compare the starting and mid-career salaries by major. The highest starting salary is for a Physician Assistant followed by six engineering majors. However, when looking at the mid-career salaries, Physician fell below all of the engineering majors. It would be interesting to look at which majors have the highest potential for salary growth.
+
+```{r boxplot_major_starting, eval=TRUE, comment=NA, message=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(forcats)
+salary.by.major.df %>% mutate(Undergraduate.Major = fct_reorder(Undergraduate.Major,Starting.Median.Salary)) %>% ggplot(aes(x=Undergraduate.Major,y=Starting.Median.Salary)) + geom_bar(stat="identity") + coord_flip() + xlab('Undergraduate Major') + ylab('Starting Salary (USD)')
+```
+
+```{r boxplot_major_mid, eval=TRUE, comment=NA}
+salary.by.major.df %>% mutate(Undergraduate.Major = fct_reorder(Undergraduate.Major,Mid.Career.Median.Salary)) %>% ggplot(aes(x=Undergraduate.Major,y=Mid.Career.Median.Salary)) + geom_bar(stat="identity") + coord_flip() + xlab('Undergraduate Major') + ylab('Mid Career Salary (USD)')
+```
